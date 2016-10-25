@@ -11,6 +11,7 @@ import UIKit
 import AFNetworking
 import BDBOAuth1Manager
 
+
 // You can register for Yelp API keys here: http://www.yelp.com/developers/manage_api_keys
 let yelpConsumerKey = "vxKwwcR_NMQ7WaEiQBK_CA"
 let yelpConsumerSecret = "33QCvh5bIF5jIHR5klQr7RtBDhQ"
@@ -21,9 +22,15 @@ enum YelpSortMode: Int {
     case bestMatched = 0, distance, highestRated
 }
 
+@objc protocol YelpClientDelegate {
+    @objc optional func yelpClientDidStartRequest(yelpClient: YelpClient)
+    @objc optional func yelpClientDidFinishRequest(yelpClient: YelpClient)
+}
+
 class YelpClient: BDBOAuth1RequestOperationManager {
     var accessToken: String!
     var accessSecret: String!
+    var delegate: YelpClientDelegate?
     
     //MARK: Shared Instance
     
@@ -44,10 +51,10 @@ class YelpClient: BDBOAuth1RequestOperationManager {
     }
     
     func searchWithTerm(_ term: String, completion: @escaping ([Business]?, Error?) -> Void) -> AFHTTPRequestOperation {
-        return searchWithTerm(term, sort: nil, categories: nil, deals: nil, completion: completion)
+        return searchWithTerm(term, sort: nil, categories: nil, deals: nil, radius: nil, completion: completion)
     }
     
-    func searchWithTerm(_ term: String, sort: YelpSortMode?, categories: [String]?, deals: Bool?, completion: @escaping ([Business]?, Error?) -> Void) -> AFHTTPRequestOperation {
+    func searchWithTerm(_ term: String, sort: YelpSortMode?, categories: [String]?, deals: Bool?, radius: Double?, completion: @escaping ([Business]?, Error?) -> Void) -> AFHTTPRequestOperation {
         // For additional parameters, see http://www.yelp.com/developers/documentation/v2/search_api
         
         // Default the location to San Francisco
@@ -65,11 +72,18 @@ class YelpClient: BDBOAuth1RequestOperationManager {
             parameters["deals_filter"] = deals! as AnyObject?
         }
         
+        if radius != nil {
+            parameters["radius_filter"] = radius! as AnyObject?
+        }
+        print("(((((((( IN API MODULE ))))))))))")
+        print(sort, radius, categories, deals)
         print(parameters)
         
+        delegate?.yelpClientDidStartRequest?(yelpClient: self)
         return self.get("search", parameters: parameters,
                         success: { (operation: AFHTTPRequestOperation, response: Any) -> Void in
                             if let response = response as? [String: Any]{
+                                self.delegate?.yelpClientDidFinishRequest?(yelpClient: self)
                                 let dictionaries = response["businesses"] as? [NSDictionary]
                                 if dictionaries != nil {
                                     completion(Business.businesses(array: dictionaries!), nil)
@@ -78,6 +92,8 @@ class YelpClient: BDBOAuth1RequestOperationManager {
                         },
                         failure: { (operation: AFHTTPRequestOperation?, error: Error) -> Void in
                             completion(nil, error)
+                            print("FAILURE")
+                            self.delegate?.yelpClientDidFinishRequest?(yelpClient: self)
                         })!
     }
 }
