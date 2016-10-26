@@ -2,9 +2,6 @@
 //  BusinessesViewController.swift
 //  Yelp
 //
-//  Created by Timothy Lee on 4/23/15.
-//  Copyright (c) 2015 Timothy Lee. All rights reserved.
-//
 
 import UIKit
 import MBProgressHUD
@@ -24,7 +21,6 @@ class BusinessViewController: UIViewController, UITableViewDataSource, UITableVi
         searchBar = UISearchBar()
         searchBar.sizeToFit()
         searchBar.text = "Restaurants"
-
         
         // setup delegates
         tableView.delegate = self
@@ -95,17 +91,12 @@ class BusinessViewController: UIViewController, UITableViewDataSource, UITableVi
         cell.business = businesses[indexPath.row]
         return cell
     }
-    
 
-     // In a storyboard-based application, you will often want to do a little preparation before navigation
-     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-     // Get the new view controller using segue.destinationViewController.
-     // Pass the selected object to the new view controller.
-        
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         let navigationController = segue.destination as! UINavigationController
         let filtersViewController = navigationController.topViewController as! FiltersViewController
         filtersViewController.delegate = self
-     }
+    }
 
     func filtersViewController(filtersViewController: FiltersViewController, didUpdateFilters filters: [String : Any]) {
         let categories = filters["categories"] as? [String]

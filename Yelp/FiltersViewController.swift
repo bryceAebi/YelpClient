@@ -3,7 +3,6 @@
 //  Yelp
 //
 //  Created by Bryce Aebi on 10/22/16.
-//  Copyright © 2016 Timothy Lee. All rights reserved.
 //
 
 import UIKit

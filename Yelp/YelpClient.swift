@@ -2,9 +2,6 @@
 //  YelpClient.swift
 //  Yelp
 //
-//  Created by Timothy Lee on 9/19/14.
-//  Copyright (c) 2014 Timothy Lee. All rights reserved.
-//
 
 import UIKit
 
@@ -75,9 +72,6 @@ class YelpClient: BDBOAuth1RequestOperationManager {
         if radius != nil {
             parameters["radius_filter"] = radius! as AnyObject?
         }
-        print("(((((((( IN API MODULE ))))))))))")
-        print(sort, radius, categories, deals)
-        print(parameters)
         
         delegate?.yelpClientDidStartRequest?(yelpClient: self)
         return self.get("search", parameters: parameters,
